@@ -1,64 +1,35 @@
-# Deployment Guide: FireTourney Pro
+# Deployment Step-by-Step (Hinglish)
 
-Follow these steps to deploy your complete tournament system to Cloudflare.
+Agar blank page aa rahi hai, toh ensure karein ki `index.html` update ho gaya hai.
 
-## 1. Prerequisites
-- Install [Node.js](https://nodejs.org/)
-- Create a [Cloudflare Account](https://dash.cloudflare.com/sign-up)
-- Install Wrangler CLI:
-  ```bash
-  npm install -g wrangler
-  ```
+### 1. Database Setup (D1)
+Terminal mein ye commands run karein:
+1. `npx wrangler d1 create fire_tourney_db`
+   * Output mein ek `database_id` milega. 
+   * Usko copy karein aur `wrangler.toml` file mein `database_id = "..."` ki jagah paste karein.
 
-## 2. Initialize Resources
+2. `npx wrangler d1 execute fire_tourney_db --remote --file=schema.sql`
+   * Isse saare tables (users, tournaments, etc.) ban jayenge.
 
-### Create D1 Database
-Run this command to create your SQL database:
-```bash
-npx wrangler d1 create fire_tourney_db
-```
-**Important:** Copy the `database_id` from the output and paste it into `backend/wrangler.toml`.
+### 2. Session Setup (KV)
+1. `npx wrangler kv:namespace create SESSIONS`
+   * Output mein ek `id` milega.
+   * Usko `wrangler.toml` mein `id = "..."` (under `[[kv_namespaces]]`) mein paste karein.
 
-### Create KV Namespace
-Run this command for session storage:
-```bash
-npx wrangler kv:namespace create SESSIONS
-```
-**Important:** Copy the `id` from the output and paste it into `backend/wrangler.toml` under `[[kv_namespaces]]`.
+### 3. Deploy Backend
+1. `npx wrangler deploy`
+   * Ye aapko ek URL dega (e.g., `https://fire-tourney-api.your-subdomain.workers.dev`).
+   * Is URL ko note kar lein.
 
-## 3. Setup Database Schema
-Apply the SQL schema to your production database:
-```bash
-npx wrangler d1 execute fire_tourney_db --remote --file=./backend/schema.sql
-```
+### 4. Deploy Frontend
+Agar aap Cloudflare Pages use kar rahe hain:
+1. Dashboard mein **Pages** par jayein.
+2. Build settings mein:
+   * **Build command**: `npm run build`
+   * **Output directory**: `dist`
+3. **Environment Variables** mein `VITE_API_URL` add karein aur usme Step 3 wala URL dal dein.
 
-## 4. Deploy Backend Worker
-Navigate to the `backend` folder and deploy:
-```bash
-cd backend
-npx wrangler deploy
-```
-This will give you a URL like `https://fire-tourney-api.your-subdomain.workers.dev`.
-
-## 5. Deploy Frontend (Cloudflare Pages)
-The easiest way is to use the Cloudflare Dashboard:
-1. Go to **Workers & Pages** > **Pages** > **Connect to Git**.
-2. Select your repository.
-3. **Build settings**:
-   - Framework preset: `Vite` (or `None` if just static)
-   - Build command: `npm run build`
-   - Output directory: `dist`
-4. Add an **Environment Variable** named `VITE_API_URL` with your Worker URL from Step 4.
-
-## 6. Local Development
-To run the backend locally:
-```bash
-npx wrangler dev
-```
-To run the frontend locally:
-```bash
-npm run dev
-```
-
----
-**Note:** The current frontend code uses `mockDb.ts` for demo purposes. To use the real backend, replace the calls in `mockDb.ts` with `fetch()` calls to your Worker API URL.
+### 5. Troubleshooting (Blank Page)
+* Agar abhi bhi blank page hai, toh browser console (F12) check karein.
+* Check karein ki `index.tsx` sahi folder mein hai.
+* `npm install` zaroor karein agar local machine par hain.
