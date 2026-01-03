@@ -1,0 +1,8 @@
+{
+  "name": "Copy of FireTourney Pro",
+  "description": "A high-performance Free Fire tournament management platform built with React, Tailwind, and Cloudflare. Features bracket generation, live scores, and an advanced admin dashboard.",
+  "requestFramePermissions": [
+    "camera",
+    "microphone"
+  ]
+}
